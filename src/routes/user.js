@@ -1,7 +1,7 @@
 import { Router } from 'express';
 const router = Router();
 import "@babel/polyfill"
-import { createUser, getUser, getUsers, deleteUser, updateUsers } from '../controllers/users.controller';
+import { createUser, getUser, getUsers, deleteUser, updateUsers } from '../models/users.controller';
 
 router.post('/getUsers', getUsers);
 router.post('/getUser', getUser);

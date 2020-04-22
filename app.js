@@ -1,26 +1,25 @@
-import express from 'express';
-import bodyParser from 'body-parser';
-import morgan from 'morgan';
+import http from 'http'
+        import express from 'express'
 
-//Importing Routes
-import UserRoutes from './routes/user';
+        import logger from 'morgan';
+        import bodyParser from 'body-parser';
+        import routes from './server/routes';
 
-const app = express();
+        const hostname = '127.0.0.1';
+        const port = 3000;
+        const app = express()
+        const server = http.createServer(app);
 
-//middlewares
-app.all('*', function(req, res, next) {
-    res.setHeader("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "POST, PUT, OPTIONS, DELETE, GET");
-    res.header("Access-Control-Max-Age", "3600");
-    res.header("Access-Control-Allow-Headers", "Content-Type, Access-Control-Allow-Headers, Authorization, X-Requested-With, x-access-token");
-    next();
-});
+        app.use(logger('dev'));
+        app.use(bodyParser.json());
+        app.use(bodyParser.urlencoded({ extended: false }));
 
-app.use(bodyParser.json({limit: '100mb'}));
-app.use(bodyParser.urlencoded({limit: '50mb','extended': 'true'}));
-app.use(bodyParser.json({type: 'application/vnd.api+json'}));
+        routes(app);
 
-//routes
-app.use('/api/user', UserRoutes)
+        app.get('*', (req, res) => res.status(200).send({
+          message: 'Welcome to the .',
+        }));
 
-export default app;
+        server.listen(port, hostname, () => {
+          console.log(`Server running at http://${hostname}:${port}/`);
+        });
