@@ -1,57 +1,68 @@
 const puppeeter = require('puppeteer');
-// import puppeeter from 'puppeteer';
+
+const chalk = require('chalk')
 
 const cheerio = require('cheerio');
+
+import model from '../models';
+
+const {Scrapper} = model;
 
 
 class Scrap {
 
     static async Scrapper(req, res){
-      const { url, className } = req.body
-      console.log(url)
 
-    //   (async()=> {
-          const browser= await puppeeter.launch()
-          const page= await browser.newPage()
-          await page.goto(url)
+      let { url, company, item_class_name, price_class_name, parent_class_name } = req.body
 
-          const content= await page.content();
+      item_class_name= item_class_name.replace(/\./g,"")
+      parent_class_name= parent_class_name.replace(/\./g,"")
 
-          const $= cheerio.load(content)
+        const browser= await puppeeter.launch()
+        const page= await browser.newPage()
+        await page.goto(url)
+        await page.waitFor(1000);
 
-        //   console.log($)
-        const titles= [];
-        $('.storylink').slice(0 , 5).each((idx, elem) =>{
+        const content= await page.content();
 
-            const title= $(elem).text()
+        const $= cheerio.load(content)
 
-            titles.push(title)
+        const results= [];
+
+        $(`.${parent_class_name}`).each((idx, elem) =>{
+
+            const item_name= $(elem).find(`.${item_class_name}`).text();
+            const pricing= $(elem).find(`.${price_class_name}`).text();
+            
+            results.push({
+                url,
+                item_name,
+                pricing
+                
+            })
+
+            try{
+            Scrapper.create({
+                name: company,
+                url: url,
+                item: item_name,
+                price: pricing
+                })
+            }
+            catch(e){
+                return res.send("unable to add to db")
+            }
+                
         })
-
+        
         browser.close(); 
-        console.log(titles);
-
-
-
-
-
-
-    //   } 
-        // return User
-        //   .create({
-        //     name,
-        //     username,
-        //     email,
-        //     password
-        //   })
-        //   .then(userData => res.status(201).send({
-        //     success: true,
-        //     message: 'User successfully created',
-        //     userData
-        //   }))
-
-        return res.send(titles)
+        
+        return res.status(200).json({
+            message:"Data Retieved successfully",
+            result:results
+        })
       }
+
   }
 
   export default Scrap;
