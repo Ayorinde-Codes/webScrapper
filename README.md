@@ -32,7 +32,7 @@ create database(postgres): created db_name
 #sample Request using postman
 
 ```bash
-URL: post(http://127.0.0.1:3000/api/scrap)
+URL: post({{URL}}/api/scrap)
 body:
 { 
 	"url":"https://www.ebay.com/b/Sony/bn_21835731?rt=nc&_dmd=2",
